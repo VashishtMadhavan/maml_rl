@@ -5,7 +5,7 @@ from rllab.envs.mujoco.ant_env_rand import AntEnvRand
 from rllab.envs.mujoco.ant_env_rand_goal import AntEnvRandGoal
 from rllab.envs.mujoco.ant_env_rand_direc import AntEnvRandDirec
 from rllab.envs.normalized_env import normalize
-from rllab.misc.instrument import run_experiment_lite
+from rllab.misc.instrument import stub, run_experiment_lite
 from sandbox.rocky.tf.policies.maml_minimal_gauss_mlp_policy import MAMLGaussianMLPPolicy
 from sandbox.rocky.tf.envs.base import TfEnv
 import tensorflow as tf
@@ -17,6 +17,8 @@ parser.add_argument('--use_maml', type=int, default=0)
 parser.add_argument('--expt_name', type=str, default='debug')
 parser.add_argument('--seed', type=int, default=0)
 args = parser.parse_args()
+
+stub(globals())
 
 if args.task_var == 'direc':
     env = TfEnv(normalize(AntEnvRandDirec()))

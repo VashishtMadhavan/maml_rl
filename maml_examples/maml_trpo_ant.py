@@ -18,50 +18,46 @@ parser.add_argument('--expt_name', type=str, default='debug')
 parser.add_argument('--seed', type=int, default=0)
 args = parser.parse_args()
 
-def run_task(v):
-    if v['task_var'] == 'direc':
-        env = TfEnv(normalize(AntEnvRandDirec()))
-    elif v['task_var'] == 'vel':
-        env = TfEnv(normalize(AntEnvRand()))
-    elif v['task_var'] == 'pos':
-        env = TfEnv(normalize(AntEnvRandGoal()))
+if args.task_var == 'direc':
+    env = TfEnv(normalize(AntEnvRandDirec()))
+elif args.task_var == 'vel':
+    env = TfEnv(normalize(AntEnvRand()))
+elif args.task_var == 'pos':
+    env = TfEnv(normalize(AntEnvRandGoal()))
 
-    policy = MAMLGaussianMLPPolicy(
-        name="policy",
-        env_spec=env.spec,
-        grad_step_size=0.1,
-        hidden_nonlinearity=tf.nn.relu,
-        hidden_sizes=(100, 100),
-    )
-    baseline = LinearFeatureBaseline(env_spec=env.spec)
-    algo = MAMLTRPO(
-        env=env,
-        policy=policy,
-        baseline=baseline,
-        batch_size=20, # number of trajs for grad update
-        max_path_length=200,
-        meta_batch_size=40,
-        num_grad_updates=1,
-        n_itr=800,
-        use_maml=bool(v['use_maml']),
-        step_size=0.01,
-        plot=False,
-    )
-    algo.train()
+policy = MAMLGaussianMLPPolicy(
+    name="policy",
+    env_spec=env.spec,
+    grad_step_size=0.1,
+    hidden_nonlinearity=tf.nn.relu,
+    hidden_sizes=(100, 100),
+)
+baseline = LinearFeatureBaseline(env_spec=env.spec)
+
+algo = MAMLTRPO(
+    env=env,
+    policy=policy,
+    baseline=baseline,
+    batch_size=20, # number of trajs for grad update
+    max_path_length=200,
+    meta_batch_size=40,
+    num_grad_updates=1,
+    n_itr=800,
+    use_maml=bool(args.use_maml),
+    step_size=0.01,
+    plot=False,
+)
 
 run_experiment_lite(
-    run_task,
+    algo.train(),
     exp_name=args.expt_name,
     n_parallel=8,
     # Only keep the snapshot parameters for the last iteration
     snapshot_mode="gap",
     snapshot_gap=25,
+    python_command='python3',
     seed=args.seed,
     mode="local",
-    variant=
-    dict(task_var=args.task_var,
-        use_maml=args.use_maml
-    ),
     # plot=True,
     # terminate_machine=False,
 )

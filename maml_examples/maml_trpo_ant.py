@@ -52,7 +52,8 @@ algo = MAMLTRPO(
 
 run_experiment_lite(
     algo.train(),
-    exp_name=args.expt_name,
+    exp_prefix=args.expt_name,
+    exp_name='run_{}'.format(args.seed),
     n_parallel=8,
     # Only keep the snapshot parameters for the last iteration
     snapshot_mode="gap",

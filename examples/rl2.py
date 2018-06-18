@@ -25,8 +25,7 @@ args = parser.parse_args()
 
 stub(globals())
 
-# TODO: get a meta-learning env
-env = TfEnv(normalize(CartpoleEnv()))
+env = TfEnv(normalize(GymEnv("Bandit_k5_n10-v0")))
 
 policy = CategoricalGRUPolicy(
     name="policy",
@@ -37,7 +36,7 @@ policy = CategoricalGRUPolicy(
     gru_layer_cls=L.TfGRULayer,
 )
 
-# TODO: get a GRU baseline 
+# TODO: potentially fix GRU Baseline
 if args.gru_base:
     baseline = LinearFeatureBaseline(env_spec=env.spec)
 else:

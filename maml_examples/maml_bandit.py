@@ -1,6 +1,6 @@
 from sandbox.rocky.tf.algos.maml_trpo import MAMLTRPO
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
-from rllab.envs.gym_env import GymEnv
+from maml_examples.random_bandit import RandomBanditEnv
 from rllab.envs.normalized_env import normalize
 from rllab.misc.instrument import stub, run_experiment_lite
 from sandbox.rocky.tf.policies.maml_minimal_categorical_mlp_policy import MAMLCategoricalMLPPolicy
@@ -16,9 +16,8 @@ parser.add_argument('--seed', type=int, default=0)
 args = parser.parse_args()
 
 stub(globals())
-env_name = "Bandit_k{}_n{}-v0".format(args.k, args.n)
 
-env = TfEnv(normalize(GymEnv(env_name, record_video=False, record_log=False)))
+env = TfEnv(normalize(RandomBanditEnv(k=args.k, n=args.n)))
 
 policy = MAMLCategoricalMLPPolicy(
     name="policy",

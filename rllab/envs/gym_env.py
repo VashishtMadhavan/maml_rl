@@ -2,8 +2,14 @@ import gym
 import gym.wrappers
 import gym.envs
 import gym.spaces
-from gym.monitoring import monitor_manager
-from gym.wrappers.monitoring import _Monitor
+import traceback
+import logging
+
+try:
+    from gym import logger as monitor_logger
+except Exception as e:
+    traceback.print_exec()
+
 import os
 import os.path as osp
 from rllab.envs.base import Env, Step
@@ -12,7 +18,6 @@ from rllab.spaces.box import Box
 from rllab.spaces.discrete import Discrete
 from rllab.spaces.product import Product
 from rllab.misc import logger
-import logging
 
 
 def convert_gym_space(space):
@@ -28,8 +33,10 @@ def convert_gym_space(space):
 
 class CappedCubicVideoSchedule(object):
     def __call__(self, count):
-        return monitor_manager.capped_cubic_video_schedule(count)
-
+        if count < 1000:
+            return int(round(count * (1. / 3))) ** 3 == count
+        else:
+            return count % 1000  == 0
 
 class FixedIntervalVideoSchedule(object):
     def __init__(self, interval):
@@ -58,8 +65,6 @@ class GymEnv(Env, Serializable):
         self.env = env
         self.env_id = env.spec.id
 
-        monitor_manager.logger.setLevel(logging.WARNING)
-
         assert not (not record_log and record_video)
 
         if log_dir is None or record_log is False:
@@ -75,7 +80,7 @@ class GymEnv(Env, Serializable):
 
         self._observation_space = convert_gym_space(env.observation_space)
         self._action_space = convert_gym_space(env.action_space)
-        self._horizon = env.spec.timestep_limit
+        self._horizon = env.spec.tags['wrapper_config.TimeLimit.max_episode_steps']
         self._log_dir = log_dir
         self._force_reset = force_reset
 
@@ -93,7 +98,9 @@ class GymEnv(Env, Serializable):
 
     def reset(self, **kwargs):
         if self._force_reset and self.monitoring:
-            recorder = self.env._monitor.stats_recorder
+            from gym.wrappers.monitoring import Monitor
+            assert isinstance(self.env, Monitor)
+            recorder = self.env.stats_recorder
             if recorder is not None:
                 recorder.done = True
         return self.env.reset()
@@ -107,7 +114,7 @@ class GymEnv(Env, Serializable):
 
     def terminate(self):
         if self.monitoring:
-            self.env._close()
+            self.env.close()
             if self._log_dir is not None:
                 print("""
     ***************************

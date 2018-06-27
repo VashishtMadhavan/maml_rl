@@ -9,13 +9,16 @@ import tensorflow as tf
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--env', type=str, default='Bandit_k5_n10-v0')
-parser.add_argument('--expt_name', type=str, default='debug')
+parser.add_argument('--k', type=int, default=10)
+parser.add_argument('--n', type=int, default=100)
+parser.add_argument('--expt_name', type=str, default='bandit_debug')
 parser.add_argument('--seed', type=int, default=0)
 args = parser.parse_args()
 
 stub(globals())
-env = TfEnv(normalize(GymEnv(args.env, record_video=False, record_log=False)))
+env_name = "Bandit_k{}_n{}-v0".format(args.k, args.n)
+
+env = TfEnv(normalize(GymEnv(env_name, record_video=False, record_log=False)))
 
 policy = MAMLCategoricalMLPPolicy(
     name="policy",
@@ -31,7 +34,7 @@ algo = MAMLTRPO(
     policy=policy,
     baseline=baseline,
     batch_size=20, # number of trajs for grad update
-    max_path_length=200,
+    max_path_length=int(args.n),
     meta_batch_size=40,
     num_grad_updates=1,
     n_itr=800,

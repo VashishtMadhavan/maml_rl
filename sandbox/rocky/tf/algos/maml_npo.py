@@ -9,7 +9,7 @@ from sandbox.rocky.tf.optimizers.penalty_lbfgs_optimizer import PenaltyLbfgsOpti
 from sandbox.rocky.tf.optimizers.first_order_optimizer import FirstOrderOptimizer
 from sandbox.rocky.tf.misc import tensor_utils
 import tensorflow as tf
-
+import pdb
 
 class MAMLNPO(BatchMAMLPolopt):
     """
@@ -162,11 +162,11 @@ class MAMLNPO(BatchMAMLPolopt):
                     all_samples_data[step][i],
                     "observations", "actions", "advantages"
                 )
+
                 obs_list.append(inputs[0])
                 action_list.append(inputs[1])
                 adv_list.append(inputs[2])
             input_list += obs_list + action_list + adv_list  # [ [obs_0], [act_0], [adv_0], [obs_1], ... ]
-
             if step == 0:  ##CF not used?
                 init_inputs = input_list
 
@@ -175,6 +175,8 @@ class MAMLNPO(BatchMAMLPolopt):
             for i in range(self.meta_batch_size):
                 agent_infos = all_samples_data[self.kl_constrain_step][i]['agent_infos']
                 dist_info_list += [agent_infos[k] for k in self.policy.distribution.dist_info_keys]
+            if len(dist_info_list[0].shape) > 2:
+                dist_info_list = [np.squeeze(x) for x in dist_info_list] 
             input_list += tuple(dist_info_list)
             logger.log("Computing KL before")
             mean_kl_before = self.optimizer.constraint_val(input_list)

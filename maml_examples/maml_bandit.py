@@ -45,7 +45,7 @@ run_experiment_lite(
     algo.train(),
     exp_prefix=args.expt_name,
     exp_name='run_{}'.format(args.seed),
-    n_parallel=8,
+    n_parallel=1,
     snapshot_mode="gap",
     snapshot_gap=100,
     python_command='python3',

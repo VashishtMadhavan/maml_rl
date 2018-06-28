@@ -10,11 +10,11 @@ import numpy as np
 import tensorflow as tf
 
 # horizon of N steps
-param_file = '../data/local/bandit-debug/run_0/itr_100.pkl'
+param_file = '../data/local/bandit-debug/run_0/itr_60.pkl'
 test_num_goals = 40
 test_step_size = 0.1
-test_k = 10
-test_n = 100
+test_k = 50
+test_n = 500
 n_itr = 5
 
 stub(globals())

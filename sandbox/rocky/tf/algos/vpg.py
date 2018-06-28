@@ -8,6 +8,7 @@ from sandbox.rocky.tf.optimizers.first_order_optimizer import FirstOrderOptimize
 from sandbox.rocky.tf.misc import tensor_utils
 from rllab.core.serializable import Serializable
 import tensorflow as tf
+import numpy as np
 
 
 class VPG(BatchPolopt, Serializable):
@@ -117,6 +118,8 @@ class VPG(BatchPolopt, Serializable):
         if self.policy.recurrent:
             inputs += (samples_data["valids"],)
         dist_info_list = [agent_infos[k] for k in self.policy.distribution.dist_info_keys]
+        if len(dist_info_list[0].shape) > 2:
+            dist_info_list = [np.squeeze(x) for x in dist_info_list]
         loss_before = self.optimizer.loss(inputs)
         self.optimizer.optimize(inputs)
         loss_after = self.optimizer.loss(inputs)

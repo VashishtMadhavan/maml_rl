@@ -60,6 +60,7 @@ class MAMLCategoricalMLPPolicy(StochasticPolicy, Serializable):
                 hidden_sizes=hidden_sizes,
                 name="prob_network",
             )
+        self.all_param_vals = None
         self._l_obs, self._l_prob = self.forward_MLP('prob_network', self.all_params,
             n_hidden=len(hidden_sizes), input_shape=(obs_dim,),
             hidden_nonlinearity=hidden_nonlinearity,

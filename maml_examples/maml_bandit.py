@@ -9,8 +9,9 @@ import tensorflow as tf
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--k', type=int, default=10)
-parser.add_argument('--n', type=int, default=100)
+parser.add_argument('--k', type=int, default=50)
+parser.add_argument('--n', type=int, default=500)
+parser.add_argument('--iters', type=int, default=400)
 parser.add_argument('--expt_name', type=str, default='bandit_debug')
 parser.add_argument('--seed', type=int, default=0)
 args = parser.parse_args()
@@ -36,7 +37,7 @@ algo = MAMLTRPO(
     max_path_length=int(args.n),
     meta_batch_size=40,
     num_grad_updates=1,
-    n_itr=800,
+    n_itr=args.iters,
     use_maml=True,
     step_size=0.01
 )
@@ -47,7 +48,7 @@ run_experiment_lite(
     exp_name='run_{}'.format(args.seed),
     n_parallel=1,
     snapshot_mode="gap",
-    snapshot_gap=100,
+    snapshot_gap=20,
     python_command='python3',
     seed=args.seed,
     mode="local",

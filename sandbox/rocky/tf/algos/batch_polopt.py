@@ -108,6 +108,7 @@ class BatchPolopt(RLAlgorithm):
             if self.load_policy is not None:
                 import joblib
                 self.policy = joblib.load(self.load_policy)['policy']
+                #import pdb; pdb.set_trace()
             self.init_opt()
             # initialize uninitialized vars (I know, it's ugly)
             uninit_vars = []

@@ -11,6 +11,8 @@ from rllab.misc.tensor_utils import flatten_tensors, unflatten_tensors
 import itertools
 import tensorflow as tf
 from sandbox.rocky.tf.core.utils import make_input, _create_param, add_param, make_dense_layer, forward_dense_layer, make_param_layer, forward_param_layer
+from contextlib import contextmanager
+
 
 tf_layers = None
 load_params = True

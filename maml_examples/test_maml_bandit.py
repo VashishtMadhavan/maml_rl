@@ -8,34 +8,39 @@ from sandbox.rocky.tf.envs.base import TfEnv
 import csv
 import numpy as np
 import tensorflow as tf
+import argparse
 
-# horizon of N steps
-param_file = '../data/local/bandit-debug/run_0/itr_60.pkl'
-test_num_goals = 40
-test_step_size = 0.1
-test_k = 50
-test_n = 500
+parser = argparse.ArgumentParser()
+parser.add_argument('--path', type=str, help='parameter file')
+parser.add_argument('--num_goals', type=int, default=40)
+parser.add_argument('--k', type=int, default=50)
+parser.add_argument('--n', type=int, default=500)
+parser.add_argument('--step_size', type=float, default=0.1)
+args = parser.parse_args()
 n_itr = 5
 
 stub(globals())
 
-goals = np.random.uniform(0.0, 1.0, size=(test_num_goals, test_k))
+goals = np.random.uniform(0.0, 1.0, size=(args.num_goals, test_k))
 avg_returns = []
 for goal in goals:
     goal = list(goal)
 
-    env = TfEnv(normalize(RandomBanditEnv(k=test_k, n=test_n, goal=goal)))
+    env = TfEnv(normalize(RandomBanditEnv(k=args.k, n=args.n, goal=goal)))
     baseline = LinearFeatureBaseline(env_spec=env.spec)
+
+    if not args.path:
+        raise Exception("Please enter a valid path for the parameter file")
 
     algo = VPG(
         env=env,
         policy=None,
-        load_policy=param_file,
+        load_policy=args.path,
         baseline=baseline,
-        batch_size=test_n*test_num_goals, 
-        max_path_length=test_n,
+        batch_size=args.n*args.num_goals, 
+        max_path_length=args.n,
         n_itr=n_itr,
-        optimizer_args={'init_learning_rate': test_step_size, 'tf_optimizer_args': {'learning_rate': 0.5*test_step_size}, 'tf_optimizer_cls': tf.train.GradientDescentOptimizer}
+        optimizer_args={'init_learning_rate': args.step_size, 'tf_optimizer_args': {'learning_rate': 0.5*args.step_size}, 'tf_optimizer_cls': tf.train.GradientDescentOptimizer}
     )
 
     run_experiment_lite(
